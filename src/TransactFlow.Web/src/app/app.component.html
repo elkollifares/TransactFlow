@@ -1,0 +1,169 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#" aria-label="Accueil TransactFlow">
+      <span class="brand-mark"><span></span><span></span><span></span></span>
+      <span>Transact<span>Flow</span></span>
+    </a>
+
+    <nav aria-label="Navigation principale">
+      <a class="nav-item active" href="#dashboard">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z"/></svg>
+        Vue d'ensemble
+      </a>
+      <a class="nav-item" href="#transactions">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h11l-3-3m3 3-3 3M17 17H6l3 3m-3-3 3-3"/></svg>
+        Transactions
+      </a>
+      <a class="nav-item" href="#analytics">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m6 10V5m6 14v-7m4 7H2"/></svg>
+        Analyses
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sync-card">
+        <span class="sync-icon">✓</span>
+        <div><strong>Données synchronisées</strong><small>Stockage local sécurisé</small></div>
+      </div>
+      <div class="profile">
+        <span class="avatar">FE</span>
+        <div><strong>Mon espace</strong><small>Administrateur</small></div>
+        <button aria-label="Options du profil">•••</button>
+      </div>
+    </div>
+  </aside>
+
+  <main id="dashboard">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TABLEAU DE BORD</p>
+        <h1>Bonjour, voici votre situation.</h1>
+        <p class="date-label">{{ todayLabel }}</p>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" (click)="refresh()" aria-label="Actualiser les données">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5M4 18v-5h5M6.1 9A7 7 0 0 1 18 6.5L20 11M4 13l2 4.5A7 7 0 0 0 17.9 15"/></svg>
+        </button>
+        <button class="primary-button" (click)="openCreate()"><span>＋</span> Nouvelle transaction</button>
+      </div>
+    </header>
+
+    @if (error()) {
+      <div class="error-banner" role="alert"><span>!</span>{{ error() }}<button (click)="error.set('')">Fermer</button></div>
+    }
+
+    <section class="metrics" aria-label="Indicateurs financiers">
+      <article class="metric-card balance-card">
+        <div class="metric-heading"><span>Solde disponible</span><span class="metric-icon wallet">▰</span></div>
+        <strong>{{ money(summary()?.balance ?? 0) }}</strong>
+        <small>Revenus moins dépenses</small>
+        <div class="spark-line" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </article>
+      <article class="metric-card">
+        <div class="metric-heading"><span>Revenus</span><span class="metric-icon income">↙</span></div>
+        <strong>{{ money(summary()?.totalIncome ?? 0) }}</strong>
+        <small><b class="positive">Disponible</b> sur la période</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-heading"><span>Dépenses</span><span class="metric-icon expense">↗</span></div>
+        <strong>{{ money(summary()?.totalExpense ?? 0) }}</strong>
+        <small><b class="neutral">{{ summary()?.transactionCount ?? 0 }}</b> opérations au total</small>
+      </article>
+    </section>
+
+    <section class="content-grid" id="analytics">
+      <article class="panel chart-panel">
+        <div class="panel-header">
+          <div><h2>Dépenses par catégorie</h2><p>Répartition actuelle de vos sorties</p></div>
+          <button class="text-button" (click)="runProcedure()">Recalculer</button>
+        </div>
+        @if (loading()) {
+          <div class="loading-block"><span></span><span></span><span></span></div>
+        } @else if ((summary()?.expensesByCategory?.length ?? 0) === 0) {
+          <div class="empty-state">Aucune dépense pour le moment.</div>
+        } @else {
+          <div class="category-chart">
+            @for (item of summary()?.expensesByCategory ?? []; track item.category) {
+              <div class="category-row">
+                <div><span>{{ item.category }}</span><strong>{{ money(item.amount) }}</strong></div>
+                <div class="bar-track"><span [style.width.%]="categoryWidth(item.amount)"></span></div>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="panel insight-panel">
+        <div class="insight-orb"><span>⌁</span></div>
+        <p class="eyebrow">APERÇU RAPIDE</p>
+        <h2>{{ (summary()?.balance ?? 0) >= 0 ? 'Votre flux est positif.' : 'Surveillez vos dépenses.' }}</h2>
+        <p>Votre taux d'épargne actuel est de</p>
+        <strong class="saving-rate">{{ summary()?.totalIncome ? (((summary()!.balance / summary()!.totalIncome) * 100) | number:'1.0-0') : 0 }}%</strong>
+        <small>Calculé en temps réel à partir de vos transactions.</small>
+      </article>
+    </section>
+
+    <section class="panel transactions-panel" id="transactions">
+      <div class="panel-header transactions-heading">
+        <div><h2>Transactions récentes</h2><p>Consultez et gérez l'ensemble de vos opérations</p></div>
+        <div class="filters">
+          <label class="search-box">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+            <span class="sr-only">Rechercher</span>
+            <input type="search" placeholder="Rechercher..." [value]="search()" (input)="onSearch($any($event.target).value)">
+          </label>
+          <select aria-label="Filtrer par type" [value]="typeFilter()" (change)="onTypeFilter($any($event.target).value)">
+            <option value="">Tous les types</option>
+            <option value="Income">Revenus</option>
+            <option value="Expense">Dépenses</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Transaction</th><th>Catégorie</th><th>Date</th><th>Type</th><th class="amount-cell">Montant</th><th><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody>
+            @for (transaction of transactions(); track transaction.id) {
+              <tr>
+                <td><div class="transaction-name"><span [class.income-bg]="transaction.type === 'Income'">{{ transaction.type === 'Income' ? '↙' : '↗' }}</span><strong>{{ transaction.description }}</strong></div></td>
+                <td><span class="category-pill">{{ transaction.category }}</span></td>
+                <td>{{ date(transaction.date) }}</td>
+                <td><span class="type-label" [class.income-label]="transaction.type === 'Income'">{{ transaction.type === 'Income' ? 'Revenu' : 'Dépense' }}</span></td>
+                <td class="amount-cell" [class.income-amount]="transaction.type === 'Income'">{{ transaction.type === 'Income' ? '+' : '−' }} {{ money(transaction.amount) }}</td>
+                <td class="row-actions"><button (click)="openEdit(transaction)" aria-label="Modifier">✎</button><button (click)="remove(transaction)" aria-label="Supprimer">×</button></td>
+              </tr>
+            } @empty {
+              <tr><td colspan="6" class="empty-table">Aucune transaction ne correspond à votre recherche.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+@if (panelOpen()) {
+  <div class="drawer-backdrop" (click)="closePanel()"></div>
+  <aside class="drawer" aria-label="Formulaire de transaction">
+    <div class="drawer-header"><div><p class="eyebrow">TRANSACTION</p><h2>{{ editingId() ? 'Modifier l’opération' : 'Nouvelle opération' }}</h2></div><button (click)="closePanel()" aria-label="Fermer">×</button></div>
+    <form #transactionForm="ngForm" (ngSubmit)="save(transactionForm)">
+      <div class="type-switch">
+        <button type="button" [class.active]="formModel.type === 'Expense'" (click)="formModel.type = 'Expense'">Dépense</button>
+        <button type="button" [class.active]="formModel.type === 'Income'" (click)="formModel.type = 'Income'">Revenu</button>
+      </div>
+      <label>Libellé<input name="description" [(ngModel)]="formModel.description" maxlength="120" placeholder="Ex. Abonnement logiciel" required></label>
+      <div class="form-row">
+        <label>Montant (CAD)<input name="amount" [(ngModel)]="formModel.amount" type="number" min="0.01" step="0.01" placeholder="0,00" required></label>
+        <label>Date<input name="date" [(ngModel)]="formModel.date" type="date" required></label>
+      </div>
+      <label>Catégorie<input name="category" [(ngModel)]="formModel.category" maxlength="60" list="categories" placeholder="Sélectionnez ou saisissez" required></label>
+      <datalist id="categories"><option value="Salaire"><option value="Freelance"><option value="Logement"><option value="Alimentation"><option value="Transport"><option value="Logiciels"><option value="Loisirs"></datalist>
+      <label>Note <span>(facultatif)</span><textarea name="note" [(ngModel)]="formModel.note" maxlength="500" rows="4" placeholder="Ajoutez un contexte..."></textarea></label>
+      <div class="form-actions"><button type="button" class="secondary-button" (click)="closePanel()">Annuler</button><button type="submit" class="primary-button" [disabled]="transactionForm.invalid || saving()">{{ saving() ? 'Enregistrement…' : 'Enregistrer' }}</button></div>
+    </form>
+  </aside>
+}
+
+@if (toast()) { <div class="toast" role="status"><span>✓</span>{{ toast() }}</div> }
+

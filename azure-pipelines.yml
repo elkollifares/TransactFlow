@@ -1,0 +1,38 @@
+trigger:
+  branches:
+    include: [main, develop]
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: Release
+
+stages:
+  - stage: Validate
+    displayName: Build et tests
+    jobs:
+      - job: Backend
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              packageType: sdk
+              version: 8.0.x
+          - script: dotnet restore TransactFlow.sln --configfile NuGet.Config
+            displayName: Restaurer .NET
+          - script: dotnet build TransactFlow.sln --configuration $(buildConfiguration) --no-restore
+            displayName: Compiler l'API
+          - script: dotnet run --project tests/TransactFlow.DomainTests --configuration $(buildConfiguration) --no-build
+            displayName: Tester le domaine
+      - job: Frontend
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: 22.x
+          - script: npm ci
+            workingDirectory: src/TransactFlow.Web
+            displayName: Installer Angular
+          - script: npm run build
+            workingDirectory: src/TransactFlow.Web
+            displayName: Compiler Angular
+

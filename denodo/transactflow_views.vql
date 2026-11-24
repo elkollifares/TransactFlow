@@ -1,0 +1,28 @@
+-- À exécuter dans le VQL Shell Denodo après création des sources JDBC
+-- oracle_transactflow et sqlserver_transactflow_dw.
+
+CREATE OR REPLACE WRAPPER w_transactions
+    FOLDER = '/transactflow/base'
+    DATASOURCENAME = 'oracle_transactflow'
+    RELATIONNAME = 'TRANSACTIONS';
+
+CREATE OR REPLACE WRAPPER w_fact_transaction
+    FOLDER = '/transactflow/base'
+    DATASOURCENAME = 'sqlserver_transactflow_dw'
+    RELATIONNAME = 'dbo.FactTransaction';
+
+CREATE OR REPLACE VIEW v_financial_overview (
+    transaction_month = 'transaction_month' : 'java.time.LocalDate',
+    total_income = 'total_income' : 'java.math.BigDecimal',
+    total_expense = 'total_expense' : 'java.math.BigDecimal',
+    balance = 'balance' : 'java.math.BigDecimal'
+) AS
+SELECT
+    trunc(transaction_date, 'MONTH') AS transaction_month,
+    sum(CASE WHEN transaction_type = 'Income' THEN amount ELSE 0 END) AS total_income,
+    sum(CASE WHEN transaction_type = 'Expense' THEN amount ELSE 0 END) AS total_expense,
+    sum(CASE WHEN transaction_type = 'Income' THEN amount ELSE -amount END) AS balance
+FROM w_transactions
+GROUP BY trunc(transaction_date, 'MONTH')
+FOLDER = '/transactflow/views';
+

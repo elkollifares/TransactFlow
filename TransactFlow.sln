@@ -1,0 +1,26 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactFlow.Api", "src/TransactFlow.Api/TransactFlow.Api.csproj", "{BD9377EA-5415-4432-9DB2-EAC403242850}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransactFlow.DomainTests", "tests/TransactFlow.DomainTests/TransactFlow.DomainTests.csproj", "{283BD8A9-D6C7-4CC9-B51D-605FFB13E50A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BD9377EA-5415-4432-9DB2-EAC403242850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD9377EA-5415-4432-9DB2-EAC403242850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD9377EA-5415-4432-9DB2-EAC403242850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD9377EA-5415-4432-9DB2-EAC403242850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{283BD8A9-D6C7-4CC9-B51D-605FFB13E50A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{283BD8A9-D6C7-4CC9-B51D-605FFB13E50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{283BD8A9-D6C7-4CC9-B51D-605FFB13E50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{283BD8A9-D6C7-4CC9-B51D-605FFB13E50A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
+

@@ -1,0 +1,25 @@
+{
+  "Defaults": {
+    "Application": "TransactFlow",
+    "SubApplication": "DataWarehouse",
+    "RunAs": "transactflow",
+    "Host": "linux-etl-agent"
+  },
+  "TransactFlow_ETL": {
+    "Type": "Folder",
+    "ControlmServer": "CTM_PROD",
+    "OrderMethod": "Manual",
+    "When": { "WeekDays": ["MON", "TUE", "WED", "THU", "FRI"], "FromTime": "0100" },
+    "Export_API": {
+      "Type": "Job:Command",
+      "Command": "/opt/transactflow/scripts/export-transactions.sh",
+      "If": { "CompletionStatus": "NOTOK", "Do": { "Type": "Action:Notify", "Destination": "Alerts", "Message": "Échec export TransactFlow" } }
+    },
+    "Load_SSIS": {
+      "Type": "Job:Command",
+      "Command": "/opt/mssql-tools/bin/sqlcmd -S $DW_SERVER -d SSISDB -E -Q \"EXEC catalog.create_execution @folder_name=N'TransactFlow', @project_name=N'TransactFlowETL', @package_name=N'LoadTransactions.dtsx'\"",
+      "WaitForEvents": { "ExportReady": { "Type": "Event", "Event": "TRANSFLOW-EXPORT-OK" } }
+    }
+  }
+}
+

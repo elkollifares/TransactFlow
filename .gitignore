@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/node_modules
+**/.angular/
+**/dist/
+.DS_Store
+src/TransactFlow.Api/data/transactions.json
+data/transactions.json
+.dotnet/
+.npm-cache/
+artifacts/
+coverage/
+
