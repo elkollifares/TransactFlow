@@ -6,7 +6,7 @@ TransactFlow est un MVP fonctionnel de gestion de transactions financières. Il 
 
 ## Démarrage local
 
-Prérequis : .NET SDK 8, Node.js 22 et npm.
+Prérequis : .NET SDK 10 LTS, Node.js 24 LTS et npm 11+.
 
 ```bash
 # Terminal 1 — API

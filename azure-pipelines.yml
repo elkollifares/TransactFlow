@@ -17,7 +17,7 @@ stages:
           - task: UseDotNet@2
             inputs:
               packageType: sdk
-              version: 8.0.x
+              version: 10.0.x
           - script: dotnet restore TransactFlow.sln --configfile NuGet.Config
             displayName: Restaurer .NET
           - script: dotnet build TransactFlow.sln --configuration $(buildConfiguration) --no-restore
@@ -28,7 +28,7 @@ stages:
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: 22.x
+              versionSpec: 24.x
           - script: npm ci
             workingDirectory: src/TransactFlow.Web
             displayName: Installer Angular
